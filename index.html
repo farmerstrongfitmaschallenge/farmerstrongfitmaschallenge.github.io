@@ -44,7 +44,6 @@ h1 span{color:var(--red)}
 .meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
 .chip{font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;background:var(--red-fill);color:#fff;padding:6px 10px;border-radius:3px}
 .dates{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#d6d5d0}
-.counted{width:100%;font-size:12px;letter-spacing:.04em;color:var(--muted2)}
 
 /* controls */
 main.wrap{padding-top:8px;padding-bottom:48px;display:flex;flex-direction:column;gap:24px}
@@ -96,6 +95,9 @@ h2{margin:0;font-family:var(--display);font-weight:400;font-size:32px;line-heigh
 .earn li{display:flex;align-items:baseline;gap:10px;padding:10px 0;font-size:14px;text-transform:uppercase;letter-spacing:.03em}
 .earn li span:first-child{color:var(--soft)}
 .earn li span:last-child{flex:none;color:#fff;font-weight:700}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:20px;min-height:48px;padding:0 18px;border:2px solid var(--red);border-radius:8px;font-family:var(--cond);font-weight:600;font-size:17px;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;color:#fff}
+.cta:hover{background:var(--red-fill);color:#fff}
+.cta:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .prize{display:flex;flex-direction:column;gap:10px}
 .prize .ticket{margin:0;align-self:flex-start;background:var(--red-fill);color:#fff;font-family:var(--cond);font-weight:700;font-size:24px;letter-spacing:.02em;text-transform:uppercase;padding:8px 14px;transform:rotate(-1deg)}
 .prize .win{margin:0;font-family:var(--cond);font-weight:700;font-size:30px;line-height:1.05;text-transform:uppercase;color:#fff}
@@ -134,7 +136,6 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     <div class="meta">
       <span class="chip" id="chip">Loading…</span>
       <span class="dates" id="dates"></span>
-      <span class="counted" id="counted"></span>
     </div>
   </div>
 </header>
@@ -191,6 +192,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
         <li><span>Refer a friend who signs up</span><span class="lead" aria-hidden="true"></span><span>50 pts</span></li>
       </ul>
       <p class="note" style="margin-left:0">Classes count automatically from your bookings. Social posts: up to 2 a week. Perform: once a week.</p>
+      <a class="cta" href="https://docs.google.com/forms/d/e/1FAIpQLSfiQiK_gW87q3QvMk0F5XVNCISSccoMZCSD0iw7wn6tBlSHkA/viewform" target="_blank" rel="noopener">Tagged us in a post? Log it here <span aria-hidden="true">&rarr;</span></a>
     </div>
     <div class="prize">
       <p class="ticket">10 points = 1 raffle ticket</p>
@@ -314,8 +316,6 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       $('dates').textContent = start && end ? fmt(start) + ' to ' + fmt(end) : '';
       var up = day(meta.updated);
       $('updated').textContent = up ? 'Updated ' + fmt(up, true) : '';
-      var counted = day(meta.classesTo);
-      $('counted').textContent = counted ? 'Classes counted up to ' + fmt(counted, true) : '';
     }
 
     var match = function (r) { return !q || r.name.toLowerCase().indexOf(q) !== -1; };

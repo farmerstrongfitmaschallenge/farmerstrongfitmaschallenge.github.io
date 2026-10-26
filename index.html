@@ -352,7 +352,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
 
     // this week
     var wk = ranked(state.people, function (p) { return p.weeks[week - 1]; })
-      .filter(function (r) { return r.rank <= WEEKLY_TOP; });
+      .slice(0, WEEKLY_TOP);   // a hard 10: a tie at the cut-off is split alphabetically
     var wRows = wk.filter(match);
     fill($('week'), wRows);
     if (start) {

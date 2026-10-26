@@ -6,6 +6,7 @@
 <title>Farm Fitmas Challenge · Leaderboard</title>
 <meta name="description" content="The Farmer Strong Farm Fitmas Challenge leaderboard: overall standings and this week's top 10.">
 <meta name="theme-color" content="#111111">
+<meta name="robots" content="noindex, nofollow">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Farm Fitmas Challenge · Leaderboard">
 <meta property="og:description" content="Overall standings and this week's top 10. Every effort counts.">
@@ -336,7 +337,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     fill($('overall'), oRows);
     showEmpty('overall-empty', !state.loaded ? 'Loading the leaderboard…'
       : q && oRows.length === 0 && !(usePodium) ? 'Nobody matches that yet. Check the spelling, or it may be under your TeamUp name.'
-      : overall.length === 0 ? (before ? 'No points yet. The challenge starts ' + fmt(start, true) + '.' : 'No points yet.')
+      : overall.length === 0 ? (before ? 'No points yet. The challenge starts ' + fmt(start, true) + '.' : 'No points on the board yet. They appear once the first classes are uploaded from TeamUp.')
       : '');
 
     // this week
@@ -356,15 +357,24 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   }
 
   // ---------- data ----------
+  // The last good feed is kept in this browser, so a returning visitor sees the board instantly
+  // while the fresh copy loads.
+  var CACHE_KEY = 'ffc-feed-v1';
+  function apply(text) {
+    var d = readFeed(text);
+    if (!d.meta.startDate) throw new Error('Feed not recognised');
+    state.meta = d.meta; state.people = d.people; state.loaded = true;
+    render();
+  }
+  function fromCache() {
+    try { var t = localStorage.getItem(CACHE_KEY); if (t) apply(t); } catch (e) {}
+  }
   function load() {
-    var url = FEED + '&t=' + Date.now();
-    return fetch(url, { cache: 'no-store' })
+    return fetch(FEED)
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .then(function (text) {
-        var d = readFeed(text);
-        if (!d.meta.startDate) throw new Error('Feed not recognised');
-        state.meta = d.meta; state.people = d.people; state.loaded = true;
-        render();
+        apply(text);
+        try { localStorage.setItem(CACHE_KEY, text); } catch (e) {}
       })
       .catch(function () {
         if (!state.loaded) {
@@ -388,6 +398,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   $('find').addEventListener('input', function (e) { state.query = e.target.value; render(); });
 
   render();
+  fromCache();
   load();
   setInterval(load, REFRESH_MS);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });

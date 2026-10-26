@@ -335,9 +335,16 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     }
     var oRows = (usePodium ? overall.slice(3) : overall).filter(match);
     fill($('overall'), oRows);
+    // everyone in the challenge whose name matches, including people still on 0 points
+    var said = '“' + state.query.trim() + '”';
+    var known = q ? state.people.filter(match) : [];
+    var unscored = known.filter(function (p) { return p.total <= 0; });
+    var notFound = 'Nobody called ' + said + '. Check the spelling, or try a surname. Names are as they appear in TeamUp.';
     showEmpty('overall-empty', !state.loaded ? 'Loading the leaderboard…'
-      : q && oRows.length === 0 && !(usePodium) ? 'Nobody matches that yet. Check the spelling, or it may be under your TeamUp name.'
       : overall.length === 0 ? (before ? 'No points yet. The challenge starts ' + fmt(start, true) + '.' : 'No points on the board yet. They appear once the first classes are uploaded from TeamUp.')
+      : q && oRows.length === 0 ? (known.length === 0 ? notFound
+          : unscored.length === 1 ? unscored[0].name + ' is in the challenge but hasn’t scored yet.'
+          : 'No points yet for anyone matching ' + said + '.')
       : '');
 
     // this week
@@ -351,8 +358,9 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       $('week-label').textContent = 'Week ' + week + ' · ' + fmt(ws) + ' to ' + fmt(we) + ' · Top ' + WEEKLY_TOP;
     }
     showEmpty('week-empty', !state.loaded ? 'Loading…'
-      : q && wk.length && wRows.length === 0 ? 'Not in this week’s top ' + WEEKLY_TOP + '. Check the Overall board for your place.'
       : wk.length === 0 ? 'No points yet this week.'
+      : q && wRows.length === 0 ? (known.length === 0 ? 'Nobody called ' + said + '.'
+          : 'Not in this week’s top ' + WEEKLY_TOP + (overall.some(match) ? '. Check the Overall board for your place.' : ' yet.'))
       : '');
   }
 

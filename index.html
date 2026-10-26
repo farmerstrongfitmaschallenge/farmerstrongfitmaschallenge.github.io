@@ -79,7 +79,7 @@ h2{margin:0;font-family:var(--display);font-weight:400;font-size:32px;line-heigh
 
 .rows{list-style:none;margin:0;padding:0}
 .row{display:flex;align-items:baseline;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
-.rank{width:30px;flex:none;font-family:var(--cond);font-weight:600;font-size:18px;color:var(--muted);text-align:right}
+.rank{width:38px;flex:none;font-family:var(--cond);font-weight:600;font-size:18px;color:var(--muted);text-align:right}
 .row.top .rank{color:var(--red)}
 .name{font-size:15px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .row.top .name{color:#fff}
@@ -268,13 +268,14 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     var sorted = list.filter(function (p) { return key(p) > 0; })
       .sort(function (a, b) { return key(b) - key(a) || a.name.localeCompare(b.name); });
     return sorted.map(function (p) {
-      var rank = 1;
-      for (var i = 0; i < sorted.length && key(sorted[i]) > key(p); i++) rank++;
-      return { name: p.name, points: key(p), rank: rank };
+      var rank = 1, same = 0;
+      sorted.forEach(function (o) { if (key(o) > key(p)) rank++; else if (key(o) === key(p)) same++; });
+      return { name: p.name, points: key(p), rank: rank, tied: same > 1 };
     });
   }
 
   // ---------- rendering ----------
+  function place(r) { return (r.tied ? '=' : '') + r.rank; }   // shared places read "=1", "=4"
   function el(tag, cls, text) {
     var e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -283,7 +284,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   }
   function rowEl(r) {
     var li = el('li', 'row' + (r.rank <= 3 ? ' top' : ''));
-    li.appendChild(el('span', 'rank', String(r.rank)));
+    li.appendChild(el('span', 'rank', place(r)));
     li.appendChild(el('span', 'name', r.name));
     var lead = el('span', 'lead'); lead.setAttribute('aria-hidden', 'true'); li.appendChild(lead);
     var pts = el('span', 'pts', String(r.points) + ' ');
@@ -322,12 +323,14 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     // overall
     var overall = ranked(state.people, function (p) { return p.total; });
     var podium = $('podium');
-    var usePodium = !q && overall.length >= 3;
+    // The podium only shows when it can hold everyone in the top three places: if the 4th person
+    // has the same points as the 3rd, the list shows the shared places instead.
+    var usePodium = !q && overall.length >= 3 && (overall.length === 3 || overall[3].points < overall[2].points);
     podium.hidden = !usePodium;
     if (usePodium) {
       podium.replaceChildren.apply(podium, [overall[1], overall[0], overall[2]].map(function (r) {
-        var li = el('li', r === overall[0] ? 'p1' : (r === overall[1] ? 'p2' : 'p3'));
-        li.appendChild(el('span', 'pr', String(r.rank)));
+        var li = el('li', 'p' + Math.min(r.rank, 3));
+        li.appendChild(el('span', 'pr', place(r)));
         li.appendChild(el('span', 'pn', r.name));
         li.appendChild(el('span', 'pp', r.points + ' PTS'));
         return li;

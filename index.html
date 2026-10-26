@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farm Fitmas Challenge · Leaderboard</title>
+<meta name="description" content="The Farmer Strong Farm Fitmas Challenge leaderboard: overall standings and this week's top 10.">
+<meta name="theme-color" content="#111111">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Farm Fitmas Challenge · Leaderboard">
+<meta property="og:description" content="Overall standings and this week's top 10. Every effort counts.">
+<meta property="og:image" content="https://farmerstrongfitmaschallenge.github.io/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Dirt&family=Oswald:wght@500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111111; --panel:#191918; --line:#262626; --text:#f3f2ee; --soft:#e9e8e3; --muted:#a9a8a3; --muted2:#c9c8c3;
+  --red:#e3262b; --red-fill:#c8181d;
+  --display:'Rubik Dirt','Arial Black',Impact,sans-serif;
+  --cond:Oswald,'Arial Narrow','Helvetica Neue',sans-serif;
+  --mono:'Roboto Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono)}
+a{color:var(--text)}a:hover{color:#fff}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+
+/* header */
+.hero{background-color:var(--bg);background-image:linear-gradient(90deg,#111 0%,rgba(17,17,17,.92) 38%,rgba(17,17,17,.35) 75%,rgba(17,17,17,.55) 100%),linear-gradient(0deg,#111 0%,rgba(17,17,17,0) 45%),url(img/hero.jpg);background-size:cover,cover,auto 100%;background-position:center,center,right center;background-repeat:no-repeat}
+.hero .wrap{padding-top:28px;padding-bottom:36px;display:flex;flex-direction:column;gap:20px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar img{width:64px;height:64px;display:block}
+.updated{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);text-align:right}
+h1{margin:0;font-family:var(--display);font-weight:400;font-size:46px;line-height:.95;letter-spacing:.01em;text-transform:uppercase;max-width:9em}
+h1 span{color:var(--red)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.chip{font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;background:var(--red-fill);color:#fff;padding:6px 10px;border-radius:3px}
+.dates{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#d6d5d0}
+.counted{width:100%;font-size:12px;letter-spacing:.04em;color:var(--muted2)}
+
+/* controls */
+main.wrap{padding-top:8px;padding-bottom:48px;display:flex;flex-direction:column;gap:24px}
+.tabs{display:flex;gap:6px;padding:5px;background:#1c1c1b;border-radius:10px}
+.tab{flex:1;min-height:48px;border:0;border-radius:6px;background:transparent;color:var(--muted);font-family:var(--cond);font-size:17px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:#111}
+.tab:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.find{display:flex;flex-direction:column;gap:8px}
+.find label{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
+.search{width:100%;min-height:48px;padding:0 16px;border-radius:8px;border:1px solid #3a3a38;background:#1a1a1a;color:var(--text);font-family:var(--mono);font-size:16px;-webkit-appearance:none;appearance:none}
+.search::placeholder{color:#8f8e89}
+.search:focus{outline:2px solid var(--red);outline-offset:1px;border-color:transparent}
+
+/* boards */
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:40px}
+.panel[hidden],.podium[hidden],.empty[hidden]{display:none}
+.head{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+h2{margin:0;font-family:var(--display);font-weight:400;font-size:32px;line-height:1;text-transform:uppercase}
+.brush{height:6px;background:var(--red);border-radius:3px 6px 2px 5px;transform:rotate(-.8deg);transform-origin:left}
+.sub{margin:6px 0 0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)}
+.weekcard{background:var(--panel);border:1px solid #2a2a28;border-radius:12px;padding:20px 16px}
+.weekcard .head{margin-bottom:14px}
+
+.podium{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+.podium li{background:#1b1b1a;border-radius:8px;border-top:4px solid #5a5a57;padding:14px 10px 16px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;text-align:center;min-height:136px}
+.podium li.p1{border-top-color:var(--red);min-height:178px}
+.podium li.p2{min-height:150px}
+.podium .pr{font-family:var(--display);font-size:40px;line-height:1}
+.podium .p1 .pr{font-size:52px;color:var(--red)}
+.podium .pn{font-family:var(--cond);font-weight:600;font-size:16px;line-height:1.15;letter-spacing:.03em;text-transform:uppercase;color:#fff;overflow-wrap:anywhere}
+.podium .pp{font-family:var(--cond);font-weight:500;font-size:15px;letter-spacing:.06em;color:var(--muted2)}
+
+.rows{list-style:none;margin:0;padding:0}
+.row{display:flex;align-items:baseline;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
+.rank{width:30px;flex:none;font-family:var(--cond);font-weight:600;font-size:18px;color:var(--muted);text-align:right}
+.row.top .rank{color:var(--red)}
+.name{font-size:15px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row.top .name{color:#fff}
+.lead{flex:1;min-width:12px;border-bottom:2px dotted #4a4a48;transform:translateY(-4px)}
+.pts{flex:none;font-family:var(--cond);font-weight:600;font-size:19px;color:#fff}
+.pts small{font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+.note{margin:16px 4px 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.empty{margin:18px 4px;color:var(--muted2);font-size:14px;line-height:1.5}
+
+/* earn */
+.earn{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-top:24px;padding-top:32px;border-top:1px solid var(--line)}
+.earn h2{font-size:26px}
+.earn ul{list-style:none;margin:0;padding:0}
+.earn li{display:flex;align-items:baseline;gap:10px;padding:10px 0;font-size:14px;text-transform:uppercase;letter-spacing:.03em}
+.earn li span:first-child{color:var(--soft)}
+.earn li span:last-child{flex:none;color:#fff;font-weight:700}
+.prize{display:flex;flex-direction:column;gap:10px}
+.prize .ticket{margin:0;align-self:flex-start;background:var(--red-fill);color:#fff;font-family:var(--cond);font-weight:700;font-size:24px;letter-spacing:.02em;text-transform:uppercase;padding:8px 14px;transform:rotate(-1deg)}
+.prize .win{margin:0;font-family:var(--cond);font-weight:700;font-size:30px;line-height:1.05;text-transform:uppercase;color:#fff}
+.prize .small{margin:0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2)}
+
+footer{border-top:1px solid var(--line)}
+footer .wrap{padding-top:24px;padding-bottom:max(36px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+footer nav{display:flex;gap:20px;flex-wrap:wrap}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (min-width:760px){
+  .tabs{display:none}
+  .panel[hidden]{display:block}
+  .cols{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:36px}
+  h1{font-size:64px}
+  .weekcard{padding:24px}
+}
+@media (min-width:1100px){
+  .cols{gap:64px}
+  h1{font-size:84px}
+  .hero .wrap{padding-top:72px;padding-bottom:64px}
+  .earn{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:64px;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <a href="https://farmerstrong.co.uk/"><img src="img/logo.png" alt="Farmer Strong" width="64" height="64"></a>
+      <div class="updated" id="updated"></div>
+    </div>
+    <h1>Farm <span>Fitmas</span> Challenge</h1>
+    <div class="meta">
+      <span class="chip" id="chip">Loading…</span>
+      <span class="dates" id="dates"></span>
+      <span class="counted" id="counted"></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist" aria-label="Leaderboards">
+    <button class="tab" role="tab" id="tab-overall" aria-controls="panel-overall" aria-selected="true">Overall</button>
+    <button class="tab" role="tab" id="tab-week" aria-controls="panel-week" aria-selected="false">This week</button>
+  </div>
+
+  <div class="find">
+    <label for="find">Find your name</label>
+    <input id="find" class="search" type="search" placeholder="Start typing…" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+
+  <div class="cols">
+    <section class="panel" id="panel-overall" role="tabpanel" aria-labelledby="h-overall">
+      <div class="head">
+        <h2 id="h-overall">Overall</h2>
+        <div class="brush" style="width:150px"></div>
+      </div>
+      <ol class="podium" id="podium" hidden></ol>
+      <ol class="rows" id="overall"></ol>
+      <p class="empty" id="overall-empty" hidden></p>
+      <p class="note">Ties share a place.</p>
+    </section>
+
+    <section class="panel" id="panel-week" role="tabpanel" aria-labelledby="h-week" hidden>
+      <div class="weekcard">
+        <div class="head">
+          <h2 id="h-week">This week</h2>
+          <div class="brush" style="width:170px"></div>
+          <p class="sub" id="week-label"></p>
+        </div>
+        <ol class="rows" id="week"></ol>
+        <p class="empty" id="week-empty" hidden></p>
+        <p class="note">The week closes Sunday night. Winners announced Monday.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="earn" aria-labelledby="h-earn">
+    <div>
+      <div class="head" style="margin-bottom:14px">
+        <h2 id="h-earn">How to earn points</h2>
+        <div class="brush" style="width:220px"></div>
+      </div>
+      <ul>
+        <li><span>Attend a class</span><span class="lead" aria-hidden="true"></span><span>10 pts</span></li>
+        <li><span>Bring a friend</span><span class="lead" aria-hidden="true"></span><span>20 pts</span></li>
+        <li><span>Complete a weekly challenge</span><span class="lead" aria-hidden="true"></span><span>15 pts</span></li>
+        <li><span>Tag us on social media</span><span class="lead" aria-hidden="true"></span><span>5 pts</span></li>
+        <li><span>Log your training in Perform</span><span class="lead" aria-hidden="true"></span><span>10 pts</span></li>
+        <li><span>Refer a friend who signs up</span><span class="lead" aria-hidden="true"></span><span>50 pts</span></li>
+      </ul>
+      <p class="note" style="margin-left:0">Classes count automatically from your bookings. Social posts: up to 2 a week. Perform: once a week.</p>
+    </div>
+    <div class="prize">
+      <p class="ticket">10 points = 1 raffle ticket</p>
+      <p class="win">Win a £300 travel voucher.</p>
+      <p class="small">Weekly prizes up for grabs. Every effort counts.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Farmer Strong · Fitness + Strength</span>
+    <nav>
+      <a href="https://www.instagram.com/farmerstrongofficial/">@farmerstrongofficial</a>
+      <a href="https://farmerstrong.co.uk/">farmerstrong.co.uk</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // The sheet's "Web feed" tab, published to the web as CSV (names and points only).
+  var FEED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9eTOBr0bwDAZwp1fZcGL25DA7gIowlbV6nkw1C1qOT9dnMbHj1ugNAcdcFIJNgQqt2htHC-JuiaA1/pub?gid=1537469128&single=true&output=csv';
+  var WEEKLY_TOP = 10;
+  var REFRESH_MS = 5 * 60 * 1000;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { people: [], meta: {}, query: '', loaded: false };
+
+  // ---------- CSV ----------
+  function parseCSV(text) {
+    var rows = [], row = [], cell = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+
+  function readFeed(text) {
+    var rows = parseCSV(text), meta = {}, people = [];
+    rows.forEach(function (r, i) {
+      if (i > 0 && r[0]) meta[r[0].trim()] = (r[1] || '').trim();
+      if (i > 0 && r[3] && r[3].trim()) {
+        var weeks = [];
+        for (var w = 0; w < 6; w++) weeks.push(Number(r[5 + w]) || 0);
+        people.push({ name: r[3].trim(), total: Number(r[4]) || 0, weeks: weeks });
+      }
+    });
+    return { meta: meta, people: people };
+  }
+
+  // ---------- dates ----------
+  function day(s) { // "yyyy-mm-dd" (optionally with a time) -> local Date at midnight
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function fmt(d, withDay) {
+    var o = withDay ? { weekday: 'short', day: 'numeric', month: 'short' } : { day: 'numeric', month: 'short' };
+    return d.toLocaleDateString('en-GB', o).replace(',', '');
+  }
+
+  // ---------- ranking ----------
+  function ranked(list, key) {
+    var sorted = list.filter(function (p) { return key(p) > 0; })
+      .sort(function (a, b) { return key(b) - key(a) || a.name.localeCompare(b.name); });
+    return sorted.map(function (p) {
+      var rank = 1;
+      for (var i = 0; i < sorted.length && key(sorted[i]) > key(p); i++) rank++;
+      return { name: p.name, points: key(p), rank: rank };
+    });
+  }
+
+  // ---------- rendering ----------
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function rowEl(r) {
+    var li = el('li', 'row' + (r.rank <= 3 ? ' top' : ''));
+    li.appendChild(el('span', 'rank', String(r.rank)));
+    li.appendChild(el('span', 'name', r.name));
+    var lead = el('span', 'lead'); lead.setAttribute('aria-hidden', 'true'); li.appendChild(lead);
+    var pts = el('span', 'pts', String(r.points) + ' ');
+    pts.appendChild(el('small', '', 'PTS'));
+    li.appendChild(pts);
+    return li;
+  }
+  function fill(list, items) {
+    list.replaceChildren.apply(list, items.map(rowEl));
+  }
+  function showEmpty(id, msg) {
+    var p = $(id);
+    p.hidden = !msg;
+    p.textContent = msg || '';
+  }
+
+  function render() {
+    var meta = state.meta, q = state.query.trim().toLowerCase();
+    var start = day(meta.startDate), end = day(meta.endDate);
+    var week = Math.min(6, Math.max(1, Number(meta.currentWeek) || 1));
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var before = start && today < start, after = end && today > end;
+
+    // header
+    if (state.loaded) {
+      $('chip').textContent = before ? 'Starts ' + fmt(start, true) : after ? 'Final standings' : 'Week ' + week + ' of 6';
+      $('dates').textContent = start && end ? fmt(start) + ' to ' + fmt(end) : '';
+      var up = day(meta.updated);
+      $('updated').textContent = up ? 'Updated ' + fmt(up, true) : '';
+      var counted = day(meta.classesTo);
+      $('counted').textContent = counted ? 'Classes counted up to ' + fmt(counted, true) : '';
+    }
+
+    var match = function (r) { return !q || r.name.toLowerCase().indexOf(q) !== -1; };
+
+    // overall
+    var overall = ranked(state.people, function (p) { return p.total; });
+    var podium = $('podium');
+    var usePodium = !q && overall.length >= 3;
+    podium.hidden = !usePodium;
+    if (usePodium) {
+      podium.replaceChildren.apply(podium, [overall[1], overall[0], overall[2]].map(function (r) {
+        var li = el('li', r === overall[0] ? 'p1' : (r === overall[1] ? 'p2' : 'p3'));
+        li.appendChild(el('span', 'pr', String(r.rank)));
+        li.appendChild(el('span', 'pn', r.name));
+        li.appendChild(el('span', 'pp', r.points + ' PTS'));
+        return li;
+      }));
+    }
+    var oRows = (usePodium ? overall.slice(3) : overall).filter(match);
+    fill($('overall'), oRows);
+    showEmpty('overall-empty', !state.loaded ? 'Loading the leaderboard…'
+      : q && oRows.length === 0 && !(usePodium) ? 'Nobody matches that yet. Check the spelling, or it may be under your TeamUp name.'
+      : overall.length === 0 ? (before ? 'No points yet. The challenge starts ' + fmt(start, true) + '.' : 'No points yet.')
+      : '');
+
+    // this week
+    var wk = ranked(state.people, function (p) { return p.weeks[week - 1]; })
+      .filter(function (r) { return r.rank <= WEEKLY_TOP; });
+    var wRows = wk.filter(match);
+    fill($('week'), wRows);
+    if (start) {
+      var ws = addDays(start, 7 * (week - 1)), we = addDays(start, 7 * week - 1);
+      if (end && we > end) we = end;
+      $('week-label').textContent = 'Week ' + week + ' · ' + fmt(ws) + ' to ' + fmt(we) + ' · Top ' + WEEKLY_TOP;
+    }
+    showEmpty('week-empty', !state.loaded ? 'Loading…'
+      : q && wk.length && wRows.length === 0 ? 'Not in this week’s top ' + WEEKLY_TOP + '. Check the Overall board for your place.'
+      : wk.length === 0 ? 'No points yet this week.'
+      : '');
+  }
+
+  // ---------- data ----------
+  function load() {
+    var url = FEED + '&t=' + Date.now();
+    return fetch(url, { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(function (text) {
+        var d = readFeed(text);
+        if (!d.meta.startDate) throw new Error('Feed not recognised');
+        state.meta = d.meta; state.people = d.people; state.loaded = true;
+        render();
+      })
+      .catch(function () {
+        if (!state.loaded) {
+          $('chip').textContent = 'Week ? of 6';
+          showEmpty('overall-empty', 'Couldn’t load the leaderboard just now. Try again in a minute.');
+          showEmpty('week-empty', 'Couldn’t load this week’s board.');
+        }
+      });
+  }
+
+  // ---------- tabs and search ----------
+  function setTab(which) {
+    var ov = which === 'overall';
+    $('tab-overall').setAttribute('aria-selected', String(ov));
+    $('tab-week').setAttribute('aria-selected', String(!ov));
+    $('panel-overall').hidden = !ov;
+    $('panel-week').hidden = ov;
+  }
+  $('tab-overall').addEventListener('click', function () { setTab('overall'); });
+  $('tab-week').addEventListener('click', function () { setTab('week'); });
+  $('find').addEventListener('input', function (e) { state.query = e.target.value; render(); });
+
+  render();
+  load();
+  setInterval(load, REFRESH_MS);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>
